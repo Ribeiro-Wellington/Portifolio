@@ -1,0 +1,27 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg2 \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev \
+    && echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+
+ENV PATH="/opt/mssql-tools18/bin:${PATH}"
+
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+WORKDIR /src
+COPY ["CadastroClientes.API/CadastroClientes.API.csproj", "CadastroClientes.API/"]
+COPY ["CadastroClientes.Application/CadastroClientes.Application.csproj", "CadastroClientes.Application/"]
+COPY ["CadastroClientes.Domain/CadastroClientes.Domain.csproj", "CadastroClientes.Domain/"]
+COPY ["CadastroClientes.Infrastructure/CadastroClientes.Infrastructure.csproj", "CadastroClientes.Infrastructure/"]
+RUN dotnet restore "CadastroClientes.API/CadastroClientes.API.csproj"
+COPY . .
+WORKDIR "/src/CadastroClientes.API"
+
+CMD ["dotnet", "ef", "database", "update", "--project", "../CadastroClientes.Infrastructure"] 
