@@ -1,0 +1,152 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>analytics</mat-icon>
+        Estatísticas de Eventos
+      </mat-card-title>
+      <mat-card-subtitle>
+        Dashboard com estatísticas do Event Sourcing
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="loading" class="loading">
+        <mat-spinner></mat-spinner>
+        <p>Carregando estatísticas...</p>
+      </div>
+
+      <div *ngIf="!loading && estatisticas" class="stats-content">
+        <div class="stats-grid">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-icon">
+                <mat-icon>event</mat-icon>
+              </div>
+              <div class="stat-info">
+                <h3>{{ estatisticas.totalEventos }}</h3>
+                <p>Total de Eventos</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-icon">
+                <mat-icon>people</mat-icon>
+              </div>
+              <div class="stat-info">
+                <h3>{{ estatisticas.clientesUnicos }}</h3>
+                <p>Clientes Únicos</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card" *ngIf="estatisticas.eventoMaisRecente">
+            <mat-card-content>
+              <div class="stat-icon">
+                <mat-icon>schedule</mat-icon>
+              </div>
+              <div class="stat-info">
+                <h3>{{ formatarDataHora(estatisticas.eventoMaisRecente.timestamp) }}</h3>
+                <p>Evento Mais Recente</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card" *ngIf="estatisticas.eventoMaisAntigo">
+            <mat-card-content>
+              <div class="stat-icon">
+                <mat-icon>history</mat-icon>
+              </div>
+              <div class="stat-info">
+                <h3>{{ formatarDataHora(estatisticas.eventoMaisAntigo.timestamp) }}</h3>
+                <p>Evento Mais Antigo</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <mat-card class="distribution-card">
+          <mat-card-header>
+            <mat-card-title>Distribuição por Tipo de Evento</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div *ngIf="estatisticas.tiposEventos.length === 0" class="empty-state">
+              <mat-icon>pie_chart</mat-icon>
+              <h3>Nenhum evento encontrado</h3>
+              <p>Não há eventos para exibir estatísticas.</p>
+            </div>
+
+            <div *ngIf="estatisticas.tiposEventos.length > 0" class="distribution-list">
+              <div *ngFor="let tipo of estatisticas.tiposEventos" class="distribution-item">
+                <div class="distribution-header">
+                  <mat-chip [color]="getEventColor(tipo.tipo)" selected>
+                    <mat-icon>{{ getEventIcon(tipo.tipo) }}</mat-icon>
+                    {{ getEventLabel(tipo.tipo) }}
+                  </mat-chip>
+                  <span class="distribution-count">{{ tipo.quantidade }}</span>
+                </div>
+                <div class="distribution-bar">
+                  <div class="bar-fill" 
+                       [style.width.%]="calcularPercentual(tipo.quantidade)"
+                       [style.background-color]="getBarColor(tipo.tipo)">
+                  </div>
+                </div>
+                <div class="distribution-percent">
+                  {{ calcularPercentual(tipo.quantidade) }}%
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="details-grid" *ngIf="estatisticas.eventoMaisRecente || estatisticas.eventoMaisAntigo">
+          <mat-card *ngIf="estatisticas.eventoMaisRecente" class="detail-card">
+            <mat-card-header>
+              <mat-card-title>Evento Mais Recente</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="event-detail">
+                <div class="event-header">
+                  <mat-chip [color]="getEventColor(estatisticas.eventoMaisRecente.eventType)" selected>
+                    <mat-icon>{{ getEventIcon(estatisticas.eventoMaisRecente.eventType) }}</mat-icon>
+                    {{ getEventLabel(estatisticas.eventoMaisRecente.eventType) }}
+                  </mat-chip>
+                </div>
+                <div class="event-info">
+                  <p><strong>Descrição:</strong> {{ estatisticas.eventoMaisRecente.descricao }}</p>
+                  <p><strong>Data/Hora:</strong> {{ formatarDataHora(estatisticas.eventoMaisRecente.timestamp) }}</p>
+                  <p><strong>Cliente ID:</strong> <code>{{ estatisticas.eventoMaisRecente.aggregateId }}</code></p>
+                  <p><strong>Versão:</strong> {{ estatisticas.eventoMaisRecente.version }}</p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card *ngIf="estatisticas.eventoMaisAntigo" class="detail-card">
+            <mat-card-header>
+              <mat-card-title>Evento Mais Antigo</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="event-detail">
+                <div class="event-header">
+                  <mat-chip [color]="getEventColor(estatisticas.eventoMaisAntigo.eventType)" selected>
+                    <mat-icon>{{ getEventIcon(estatisticas.eventoMaisAntigo.eventType) }}</mat-icon>
+                    {{ getEventLabel(estatisticas.eventoMaisAntigo.eventType) }}
+                  </mat-chip>
+                </div>
+                <div class="event-info">
+                  <p><strong>Descrição:</strong> {{ estatisticas.eventoMaisAntigo.descricao }}</p>
+                  <p><strong>Data/Hora:</strong> {{ formatarDataHora(estatisticas.eventoMaisAntigo.timestamp) }}</p>
+                  <p><strong>Cliente ID:</strong> <code>{{ estatisticas.eventoMaisAntigo.aggregateId }}</code></p>
+                  <p><strong>Versão:</strong> {{ estatisticas.eventoMaisAntigo.version }}</p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div> 

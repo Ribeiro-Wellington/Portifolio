@@ -1,0 +1,26 @@
+<mat-toolbar color="primary" class="toolbar">
+  <span class="toolbar-title">Cadastro de Clientes</span>
+  <span class="toolbar-spacer"></span>
+  <nav>
+    <a mat-button routerLink="/clientes" routerLinkActive="active">
+      <mat-icon>people</mat-icon>
+      Clientes
+    </a>
+    <a mat-button routerLink="/clientes/novo" routerLinkActive="active">
+      <mat-icon>person_add</mat-icon>
+      Novo Cliente
+    </a>
+    <a mat-button routerLink="/eventos" routerLinkActive="active">
+      <mat-icon>history</mat-icon>
+      Eventos
+    </a>
+    <a mat-button routerLink="/eventos/estatisticas" routerLinkActive="active">
+      <mat-icon>analytics</mat-icon>
+      Estatísticas
+    </a>
+  </nav>
+</mat-toolbar>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main> 

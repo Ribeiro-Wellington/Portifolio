@@ -1,0 +1,166 @@
+<div class="container">
+  <div *ngIf="loading" class="loading">
+    <mat-spinner></mat-spinner>
+    <p>Carregando cliente...</p>
+  </div>
+
+  <div *ngIf="!loading && cliente" class="content">
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>person</mat-icon>
+          {{ cliente.nome }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ getTipoCliente() }} • {{ formatarDocumento(cliente.documento, cliente.isPessoaJuridica) }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" [routerLink]="['/clientes', cliente.id, 'editar']">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <button mat-raised-button color="warn" (click)="removerCliente()">
+          <mat-icon>delete</mat-icon>
+          Remover
+        </button>
+        <button mat-button routerLink="/clientes">
+          <mat-icon>arrow_back</mat-icon>
+          Voltar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-tab-group>
+      <mat-tab label="Informações Gerais">
+        <div class="tab-content">
+          <div class="info-grid">
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>Informações Básicas</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-item">
+                  <strong>Nome:</strong> {{ cliente.nome }}
+                </div>
+                <div class="info-item">
+                  <strong>Documento:</strong> {{ formatarDocumento(cliente.documento, cliente.isPessoaJuridica) }}
+                </div>
+                <div class="info-item">
+                  <strong>Tipo:</strong> 
+                  <mat-chip [color]="cliente.isPessoaJuridica ? 'accent' : 'primary'" selected>
+                    {{ getTipoCliente() }}
+                  </mat-chip>
+                </div>
+                <div class="info-item" *ngIf="cliente.isPessoaJuridica">
+                  <strong>Inscrição Estadual:</strong> {{ getStatusInscricao() }}
+                </div>
+                <div class="info-item" *ngIf="!cliente.isPessoaJuridica">
+                  <strong>Data de Nascimento:</strong> {{ formatarData(cliente.dataNascimento) }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>Contato</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-item">
+                  <strong>Email:</strong> {{ cliente.email }}
+                </div>
+                <div class="info-item">
+                  <strong>Telefone:</strong> {{ formatarTelefone(cliente.telefone) }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>Endereço</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-item">
+                  <strong>CEP:</strong> {{ cliente.cep }}
+                </div>
+                <div class="info-item">
+                  <strong>Endereço:</strong> {{ cliente.endereco }}, {{ cliente.numero }}
+                </div>
+                <div class="info-item">
+                  <strong>Bairro:</strong> {{ cliente.bairro }}
+                </div>
+                <div class="info-item">
+                  <strong>Cidade:</strong> {{ cliente.cidade }} - {{ cliente.estado }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>Datas</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-item">
+                  <strong>Data de Cadastro:</strong> {{ formatarDataHora(cliente.dataCadastro) }}
+                </div>
+                <div class="info-item" *ngIf="cliente.dataAtualizacao">
+                  <strong>Última Atualização:</strong> {{ formatarDataHora(cliente.dataAtualizacao) }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Histórico de Eventos">
+        <div class="tab-content">
+          <div *ngIf="loadingEventos" class="loading">
+            <mat-spinner></mat-spinner>
+            <p>Carregando histórico...</p>
+          </div>
+
+          <div *ngIf="!loadingEventos && eventos.length === 0" class="empty-state">
+            <mat-icon>history</mat-icon>
+            <h3>Nenhum evento encontrado</h3>
+            <p>Este cliente ainda não possui histórico de eventos.</p>
+          </div>
+
+          <div *ngIf="!loadingEventos && eventos.length > 0" class="timeline">
+            <div *ngFor="let evento of eventos; let i = index" class="timeline-item">
+              <div class="timeline-marker">
+                <mat-icon>{{ getEventIcon(evento.eventType) }}</mat-icon>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <h4>{{ evento.descricao }}</h4>
+                  <span class="timeline-date">{{ formatarDataHora(evento.timestamp) }}</span>
+                </div>
+                <div class="timeline-body">
+                  <p>{{ evento.resumo }}</p>
+                  <div class="event-changes" *ngIf="hasChanges(evento.mudancas)">
+                    <h5>Mudanças:</h5>
+                    <div class="changes-grid">
+                      <div *ngFor="let change of getChangesArray(evento.mudancas)" class="change-item">
+                        <strong>{{ change.key }}:</strong> {{ change.value }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <div *ngIf="!loading && !cliente" class="error-state">
+    <mat-icon>error</mat-icon>
+    <h3>Cliente não encontrado</h3>
+    <p>O cliente solicitado não foi encontrado ou foi removido.</p>
+    <button mat-raised-button color="primary" routerLink="/clientes">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar à Lista
+    </button>
+  </div>
+</div> 

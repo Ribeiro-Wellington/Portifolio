@@ -1,0 +1,94 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>people</mat-icon>
+        Lista de Clientes
+      </mat-card-title>
+      <mat-card-subtitle>
+        Gerencie os clientes cadastrados no sistema
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="actions">
+        <button mat-raised-button color="primary" routerLink="/clientes/novo">
+          <mat-icon>add</mat-icon>
+          Novo Cliente
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        <mat-spinner></mat-spinner>
+        <p>Carregando clientes...</p>
+      </div>
+
+      <div *ngIf="!loading && clientes.length === 0" class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <h3>Nenhum cliente encontrado</h3>
+        <p>Comece cadastrando o primeiro cliente do sistema.</p>
+        <button mat-raised-button color="primary" routerLink="/clientes/novo">
+          <mat-icon>add</mat-icon>
+          Cadastrar Cliente
+        </button>
+      </div>
+
+      <div *ngIf="!loading && clientes.length > 0" class="table-container">
+        <table mat-table [dataSource]="clientes" class="mat-elevation-1">
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let cliente">{{ cliente.nome }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="documento">
+            <th mat-header-cell *matHeaderCellDef>Documento</th>
+            <td mat-cell *matCellDef="let cliente">
+              {{ formatarDocumento(cliente.documento, cliente.isPessoaJuridica) }}
+              <span class="tipo-documento">
+                {{ cliente.isPessoaJuridica ? 'PJ' : 'PF' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let cliente">{{ cliente.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="telefone">
+            <th mat-header-cell *matHeaderCellDef>Telefone</th>
+            <td mat-cell *matCellDef="let cliente">{{ formatarTelefone(cliente.telefone) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="cidade">
+            <th mat-header-cell *matHeaderCellDef>Cidade</th>
+            <td mat-cell *matCellDef="let cliente">{{ cliente.cidade }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let cliente">{{ cliente.estado }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let cliente">
+              <button mat-icon-button color="primary" [routerLink]="['/clientes', cliente.id]" matTooltip="Visualizar">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button color="accent" [routerLink]="['/clientes', cliente.id, 'editar']" matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="removerCliente(cliente)" matTooltip="Remover">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div> 

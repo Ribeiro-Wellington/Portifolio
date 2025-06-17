@@ -1,0 +1,169 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.filtros {
+  margin-bottom: 24px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.filtros h3 {
+  margin: 0 0 16px 0;
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+.filtro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filtro-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.filtro-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filtro-field-small {
+  flex: 0 0 120px;
+}
+
+.filtro-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+.loading p {
+  color: #666;
+  margin: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+.results {
+  margin-top: 24px;
+}
+
+.results-header {
+  margin-bottom: 16px;
+}
+
+.results-header h3 {
+  margin: 0;
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-column-timestamp {
+  width: 180px;
+}
+
+.mat-column-eventType {
+  width: 150px;
+}
+
+.mat-column-aggregateId {
+  width: 200px;
+}
+
+.mat-column-version {
+  width: 80px;
+}
+
+.mat-column-acoes {
+  width: 80px;
+}
+
+code {
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .filtro-row {
+    flex-direction: column;
+  }
+  
+  .filtro-field,
+  .filtro-field-small {
+    flex: 1;
+    min-width: auto;
+  }
+  
+  .filtro-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filtro-actions button {
+    width: 100%;
+  }
+  
+  .table-container {
+    font-size: 0.9rem;
+  }
+  
+  .mat-column-timestamp,
+  .mat-column-eventType,
+  .mat-column-aggregateId,
+  .mat-column-version,
+  .mat-column-acoes {
+    width: auto;
+  }
+} 

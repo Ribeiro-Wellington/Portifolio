@@ -1,0 +1,132 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>history</mat-icon>
+        Histórico de Eventos
+      </mat-card-title>
+      <mat-card-subtitle>
+        Visualize todos os eventos do Event Sourcing
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="filtros">
+        <h3>Filtros</h3>
+        <form [formGroup]="filtroForm" class="filtro-form">
+          <div class="filtro-row">
+            <mat-form-field appearance="outline" class="filtro-field">
+              <mat-label>ID do Cliente</mat-label>
+              <input matInput formControlName="aggregateId" placeholder="Digite o ID do cliente">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filtro-field">
+              <mat-label>Tipo de Evento</mat-label>
+              <mat-select formControlName="eventType">
+                <mat-option value="">Todos os tipos</mat-option>
+                <mat-option *ngFor="let tipo of tiposEventos" [value]="tipo">
+                  {{ getEventLabel(tipo) }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filtro-field">
+              <mat-label>Data Início</mat-label>
+              <input matInput [matDatepicker]="pickerInicio" formControlName="dataInicio">
+              <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filtro-field">
+              <mat-label>Data Fim</mat-label>
+              <input matInput [matDatepicker]="pickerFim" formControlName="dataFim">
+              <mat-datepicker-toggle matSuffix [for]="pickerFim"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFim></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filtro-field-small">
+              <mat-label>Limite</mat-label>
+              <input matInput type="number" formControlName="limite" min="1" max="1000">
+            </mat-form-field>
+          </div>
+
+          <div class="filtro-actions">
+            <button type="button" mat-raised-button color="primary" (click)="carregarEventos()">
+              <mat-icon>search</mat-icon>
+              Filtrar
+            </button>
+            <button type="button" mat-button (click)="limparFiltros()">
+              <mat-icon>clear</mat-icon>
+              Limpar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        <mat-spinner></mat-spinner>
+        <p>Carregando eventos...</p>
+      </div>
+
+      <div *ngIf="!loading && eventos.length === 0" class="empty-state">
+        <mat-icon>history</mat-icon>
+        <h3>Nenhum evento encontrado</h3>
+        <p>Tente ajustar os filtros para encontrar eventos.</p>
+      </div>
+
+      <div *ngIf="!loading && eventos.length > 0" class="results">
+        <div class="results-header">
+          <h3>Resultados ({{ eventos.length }} eventos)</h3>
+        </div>
+
+        <div class="table-container">
+          <table mat-table [dataSource]="eventos" class="mat-elevation-1">
+            <ng-container matColumnDef="timestamp">
+              <th mat-header-cell *matHeaderCellDef>Data/Hora</th>
+              <td mat-cell *matCellDef="let evento">{{ formatarDataHora(evento.timestamp) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="eventType">
+              <th mat-header-cell *matHeaderCellDef>Tipo</th>
+              <td mat-cell *matCellDef="let evento">
+                <mat-chip [color]="getEventColor(evento.eventType)" selected>
+                  <mat-icon>{{ getEventIcon(evento.eventType) }}</mat-icon>
+                  {{ getEventLabel(evento.eventType) }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="descricao">
+              <th mat-header-cell *matHeaderCellDef>Descrição</th>
+              <td mat-cell *matCellDef="let evento">{{ evento.descricao }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="aggregateId">
+              <th mat-header-cell *matHeaderCellDef>ID do Cliente</th>
+              <td mat-cell *matCellDef="let evento">
+                <code>{{ evento.aggregateId }}</code>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="version">
+              <th mat-header-cell *matHeaderCellDef>Versão</th>
+              <td mat-cell *matCellDef="let evento">{{ evento.version }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef>Ações</th>
+              <td mat-cell *matCellDef="let evento">
+                <button mat-icon-button color="primary" (click)="visualizarDetalhes(evento)" matTooltip="Ver detalhes">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div> 

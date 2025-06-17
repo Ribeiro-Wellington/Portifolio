@@ -1,0 +1,187 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ isEditMode ? 'edit' : 'person_add' }}</mat-icon>
+        {{ isEditMode ? 'Editar Cliente' : 'Novo Cliente' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Atualize as informações do cliente' : 'Preencha os dados para cadastrar um novo cliente' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="loading" class="loading">
+        <mat-spinner></mat-spinner>
+        <p>{{ isEditMode ? 'Carregando cliente...' : 'Salvando cliente...' }}</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading" class="form">
+        <div class="form-section">
+          <h3>Informações Básicas</h3>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Nome Completo</mat-label>
+              <input matInput formControlName="nome" placeholder="Digite o nome completo">
+              <mat-error *ngIf="form.get('nome')?.hasError('required')">
+                Nome é obrigatório
+              </mat-error>
+              <mat-error *ngIf="form.get('nome')?.hasError('minlength')">
+                Nome deve ter pelo menos 3 caracteres
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>CPF/CNPJ</mat-label>
+              <input matInput formControlName="documento" placeholder="Digite o CPF ou CNPJ" [mask]="form.get('isPessoaJuridica')?.value ? '00.000.000/0000-00' : '000.000.000-00'">
+              <mat-error *ngIf="form.get('documento')?.hasError('required')">
+                Documento é obrigatório
+              </mat-error>
+              <mat-error *ngIf="form.get('documento')?.hasError('minlength')">
+                Documento deve ter pelo menos {{ form.get('isPessoaJuridica')?.value ? '14' : '11' }} dígitos
+              </mat-error>
+            </mat-form-field>
+
+            <mat-checkbox formControlName="isPessoaJuridica" (change)="onTipoPessoaChange()" class="checkbox-field">
+              Pessoa Jurídica
+            </mat-checkbox>
+          </div>
+
+          <div class="form-row" *ngIf="form.get('isPessoaJuridica')?.value">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Inscrição Estadual</mat-label>
+              <input matInput formControlName="inscricaoEstadual" placeholder="Digite a inscrição estadual">
+            </mat-form-field>
+
+            <mat-checkbox formControlName="isento" class="checkbox-field">
+              Isento de Inscrição Estadual
+            </mat-checkbox>
+          </div>
+
+          <div class="form-row" *ngIf="!form.get('isPessoaJuridica')?.value">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Data de Nascimento</mat-label>
+              <input matInput formControlName="dataNascimento" placeholder="dd/MM/yyyy" mask="d0/M0/0000" min="01/01/1900">
+              <mat-error *ngIf="form.get('dataNascimento')?.hasError('required')">
+                Data de nascimento é obrigatória
+              </mat-error>
+              <mat-error *ngIf="form.get('dataNascimento')?.hasError('minDate')">
+                O ano deve ser maior ou igual a 1900
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Informações de Contato</h3>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Telefone</mat-label>
+              <input matInput formControlName="telefone" placeholder="Digite o telefone" mask="(00) 00000-0000">
+              <mat-error *ngIf="form.get('telefone')?.hasError('required')">
+                Telefone é obrigatório
+              </mat-error>
+              <mat-error *ngIf="form.get('telefone')?.hasError('minlength')">
+                Telefone deve ter pelo menos 10 dígitos
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email" placeholder="Digite o email">
+              <mat-error *ngIf="form.get('email')?.hasError('required')">
+                Email é obrigatório
+              </mat-error>
+              <mat-error *ngIf="form.get('email')?.hasError('email')">
+                Email deve ser válido
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Endereço</h3>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>CEP</mat-label>
+              <input matInput formControlName="cep" placeholder="Digite o CEP" mask="00000-000">
+              <mat-error *ngIf="form.get('cep')?.hasError('required')">
+                CEP é obrigatório
+              </mat-error>
+              <mat-error *ngIf="form.get('cep')?.hasError('cepFormat')">
+                CEP deve estar no formato 00000-000
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Endereço</mat-label>
+              <input matInput formControlName="endereco" placeholder="Digite o endereço">
+              <mat-error *ngIf="form.get('endereco')?.hasError('required')">
+                Endereço é obrigatório
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field-small">
+              <mat-label>Número</mat-label>
+              <input matInput formControlName="numero" placeholder="Nº" type="number" mask="0*" min="0">
+              <mat-error *ngIf="form.get('numero')?.hasError('required')">
+                Número é obrigatório
+              </mat-error>
+              <mat-error *ngIf="form.get('numero')?.hasError('min')">
+                O número não pode ser negativo
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Bairro</mat-label>
+              <input matInput formControlName="bairro" placeholder="Digite o bairro">
+              <mat-error *ngIf="form.get('bairro')?.hasError('required')">
+                Bairro é obrigatório
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Cidade</mat-label>
+              <input matInput formControlName="cidade" placeholder="Digite a cidade">
+              <mat-error *ngIf="form.get('cidade')?.hasError('required')">
+                Cidade é obrigatória
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field-small">
+              <mat-label>Estado</mat-label>
+              <mat-select formControlName="estado">
+                <mat-option *ngFor="let estado of estados" [value]="estado">
+                  {{ estado }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.get('estado')?.hasError('required')">
+                Estado é obrigatório
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" mat-button (click)="cancelar()">
+            <mat-icon>cancel</mat-icon>
+            Cancelar
+          </button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="loading">
+            <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ isEditMode ? 'Atualizar' : 'Cadastrar' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div> 
